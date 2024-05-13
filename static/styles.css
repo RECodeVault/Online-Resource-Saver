@@ -1,3 +1,16 @@
 .main-title {
     text-align: center;
+    color: #e3e3e3;
+}
+
+.background {
+    background-color: #2a2929;
+}
+
+#pills-tab {
+    background-color: #e3e3e3;
+}
+
+.tab-pane {
+    color: #e3e3e3
 }

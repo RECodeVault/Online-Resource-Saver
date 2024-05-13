@@ -4,8 +4,171 @@
     <meta charset="UTF-8">
     <title>Online Resource Saver</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body>
-    <h1 class="main-title">Online Resource Saver</h1>
-</body>
+    <div id='root'></div>
+    <body class="background">
+        <script type="text/babel">
+
+            const App = () => {
+
+                return (
+                    <>
+                        <h1 className="main-title">Online Resource Saver</h1>
+                        <MainTable></MainTable>
+                    </>
+                )
+            }
+
+            const MainTable = () => {
+                const [categories, setCategories] = React.useState(["All"])
+
+                return (
+                    <>
+                        <div className="container">
+                            <div className="row">
+                                <ul className="nav nav-pills mb-3 mx-auto mt-3" id="pills-tab" role="tablist">
+                                    {categories.map((category, index) => (
+                                        <li className="nav-item" role="presentation" key={index}>
+                                            <button className={`nav-link ${index === 0 ? 'active' : ''}`}
+                                                    id={`pills-${category.split(' ').join('')}-tab`} data-bs-toggle="pill"
+                                                    data-bs-target={`#pills-${category.split(' ').join('')}`} type="button" role="tab"
+                                                    aria-controls={`pills-${category.split(' ').join('')}`}
+                                                    aria-selected={index === 0 ? 'true' : 'false'}>{category}</button>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <div className="tab-content" id="pills-tabContent">
+                                    {categories.map((category, index) => (
+                                        <div className={`tab-pane fade ${index === 0 ? 'show active' : ''}`}
+                                             id={`pills-${category.split(' ').join('')}`} role="tabpanel"
+                                             aria-labelledby={`pills-${category.split(' ').join('')}-tab`} key={index}>
+                                            <Table categories={categories} setCategories={setCategories} key={index}/>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </>
+                );
+            }
+
+            const Table = ({categories, setCategories}) => {
+                const [rows, setRows] = React.useState([])
+
+                return (
+                    <>
+                        <table className="table table-striped table-dark table-hover table-bordered">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Name</th>
+                                <th scope="col">Link</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                { rows.map(({ link, name }, index) => (
+                                    <Row key={index}
+                                        index={index}
+                                        link={link}
+                                        name={name}
+                                    />
+                                ))}
+                            </tbody>
+                        </table>
+                        <InputGroup setRows={setRows} rows={rows} setCategories={setCategories} categories={categories}></InputGroup>
+                    </>
+                )
+            }
+
+            const Row = ({index, link, name}) => {
+                return (
+                    <>
+                        <tr>
+                            <th scope="row">{index + 1}</th>
+                            <td>{name}</td>
+                            <td><a href={link}>{link}</a></td>
+                        </tr>
+                    </>
+                )
+            }
+
+        const InputGroup = ({setRows, rows, setCategories, categories}) => {
+
+            const [name, setName] = React.useState('');
+            const [link, setLink] = React.useState('');
+            const [category, setCategory] = React.useState('')
+
+            React.useEffect(() => {
+                    console.log("Rows updated:", rows);
+            }, [rows])
+
+            React.useEffect(() => {
+                    console.log("Categories updated:", categories);
+            }, [categories])
+
+            const handleSubmitEntry = event => {
+                event.preventDefault();
+                const data = {
+                    "category": category,
+                    "name": name.toString(),
+                    "link": link.toString()
+                }
+                setRows([...rows, data])
+            };
+
+            const handleSubmitCategory = event => {
+                event.preventDefault();
+                setCategories([...categories, category.toString()])
+            }
+
+            return (
+                <>
+                    <div className="input-group mb-3">
+                        <button type="button" className="btn btn-outline-primary" onClick={handleSubmitEntry}>Add Entry
+                        </button>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Name"
+                            aria-label="Username"
+                            value={name}
+                            onChange={e => setName(e.target.value)}
+                        />
+                        <span className="input-group-text">@</span>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Link: https://example.com"
+                            aria-label="Server"
+                            value={link}
+                            onChange={e => setLink(e.target.value)}
+                        />
+                        <span className="input-group-text">@</span>
+                    </div>
+                    <div className="input-group mb-3">
+                        <button type="button" className="btn btn-outline-primary" onClick={handleSubmitCategory}>Add Category
+                        </button>
+                        <span className="input-group-text" id="basic-addon1">@</span>
+                        <input
+                            type="text"
+                            className="form-control"
+                            placeholder="Enter Category:"
+                            aria-label="Username"
+                            aria-describedby="basic-addon1"
+                            onChange={e => setCategory(e.target.value)}
+                        />
+                    </div>
+                </>
+            )
+        }
+
+            const root = ReactDOM.createRoot(document.getElementById('root'));
+            root.render(<App/>);
+        </script>
+    </body>
 </html>
