@@ -136,19 +136,40 @@
                         console.log("Categories updated:", categories);
                 }, [categories])
 
+                function isValidUrl(urlInput) {
+                    try {
+                        const url = new URL(urlInput);
+                        return url.protocol === 'http:' || url.protocol === 'https:';
+                    } catch (err) {
+                        return false;
+                    }
+                }
+
                 const handleSubmitEntry = event => {
                     event.preventDefault();
-                    const data = {
-                        "category": currentCategory,
-                        "name": name.toString(),
-                        "link": link.toString()
+
+                    if (name !== "" && link !== "" && isValidUrl(link)) {
+                        const data = {
+                            "category": currentCategory,
+                            "name": name.toString(),
+                            "link": link.toString()
+                        }
+                        setRows([...rows, data])
                     }
-                    setRows([...rows, data])
+                    else {
+                        window.alert("Invalid URL or empty entries")
+                    }
+
                 };
 
                 const handleSubmitCategory = event => {
-                    event.preventDefault();
-                    setCategories([...categories, category.toString()]);
+                    if (category !== "") {
+                        event.preventDefault();
+                        setCategories([...categories, category.toString()]);
+                    }
+                    else {
+                        window.alert("When adding categories you cannot have empty values")
+                    }
                 }
 
                 return (
