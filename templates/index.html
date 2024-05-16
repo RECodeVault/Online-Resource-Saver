@@ -145,7 +145,7 @@
                     }
                 }
 
-                const handleSubmitEntry = event => {
+                const handleSubmitEntry = async event => {
                     event.preventDefault();
 
                     if (name !== "" && link !== "" && isValidUrl(link)) {
@@ -154,12 +154,29 @@
                             "name": name.toString(),
                             "link": link.toString()
                         }
-                        setRows([...rows, data])
+                        try {
+                            const response = await fetch('/submit_entry', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(data)
+                            });
+
+                            if (response.ok) {
+                                const responseData = await response.json();
+                                console.log(responseData);
+                                setRows([...rows, data]);
+                            } else {
+                                throw new Error('Failed to submit entry');
+                            }
+                        } catch (error) {
+                            console.error('Error submitting entry:', error);
+                        }
                     }
                     else {
-                        window.alert("Invalid URL or empty entries")
+                        window.alert("Invalid URL or empty entries");
                     }
-
                 };
 
                 const handleSubmitCategory = event => {
