@@ -16,16 +16,42 @@
 
             const App = () => {
 
+                const [loadingDone, setLoadingDone] = React.useState(false)
+
+                 React.useEffect(() => {
+                     try {
+                        fetch('/get_data_on_page_load')
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Failed to submit entry');
+                                }
+                                return response.json();
+                            })
+                            .then(responseData => {
+                                console.log(responseData)
+                                console.log("Loading done")
+                                setLoadingDone(true)
+                            })
+                            .catch(error => {
+                                console.error('Error submitting entry:', error);
+                            });
+                    } catch (error) {
+                        console.error('Error submitting entry:', error);
+                    }
+                }, [])
+
                 return (
                     <>
                         <h1 className="main-title">Online Resource Saver</h1>
-                        <MainTable></MainTable>
+                        {loadingDone ? <MainTable /> : null}
                     </>
                 )
             }
 
             const MainTable = () => {
                 const [categories, setCategories] = React.useState(["All"])
+
+                console.log(categories)
 
                 return (
                     <>
@@ -129,11 +155,11 @@
                 const [category, setCategory] = React.useState('')
 
                 React.useEffect(() => {
-                        console.log("Rows updated:", rows);
+                    console.log("Rows updated:", rows);
                 }, [rows])
 
                 React.useEffect(() => {
-                        console.log("Categories updated:", categories);
+                    console.log("Categories updated:", categories);
                 }, [categories])
 
                 function isValidUrl(urlInput) {

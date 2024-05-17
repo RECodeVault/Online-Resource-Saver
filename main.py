@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from pymongo import MongoClient
-
+from pymongo import MongoClient, collection
 
 client = MongoClient()
 app = Flask(__name__)
@@ -16,9 +15,49 @@ def index():
 
     # TODO: delete this and add procedural reloading so database loads and updates page when loaded
     collection_names = db.list_collection_names()
+
+    # DROPS TABLES
+    # for collection_name in collection_names:
+    #     db.drop_collection(collection_name)
+
+    # PRINTS TABLES
     for collection_name in collection_names:
-        db.drop_collection(collection_name)
+        print("Collection:", collection_name)
+        collection = db[collection_name]
+
+        documents = collection.find()
+
+        for document in documents:
+            print("Document:", document)
+
     return render_template("index.html")
+
+@app.route("/get_data_on_page_load", methods = ["GET"])
+def get_data_on_page_load():
+
+    documents_data = []
+
+    collection_names = db.list_collection_names()
+
+    for collection_name in collection_names:
+        collection = db[collection_name]
+
+        documents = collection.find()
+
+        for document in documents:
+            data = {
+                "name": document["name"],
+                "link": document["link"],
+                "category": document["category"]
+            }
+            documents_data.append(data)
+
+    data = {
+        "categories": collection_names,
+        "rows": documents_data
+    }
+
+    return jsonify({'collections': data})
 
 
 @app.route("/submit_entry", methods = ["POST"])
@@ -35,6 +74,7 @@ def submit_entry():
         collection = db.create_collection(category)
 
     data = {
+        "category": category,
         "name": name,
         "link": link
     }
