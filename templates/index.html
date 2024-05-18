@@ -17,6 +17,8 @@
             const App = () => {
 
                 const [loadingDone, setLoadingDone] = React.useState(false)
+                const [categories, setCategories] = React.useState(["All"])
+                const [rowsData, setRowsData] = React.useState([])
 
                  React.useEffect(() => {
                      try {
@@ -28,8 +30,19 @@
                                 return response.json();
                             })
                             .then(responseData => {
-                                console.log(responseData)
-                                console.log("Loading done")
+                                let uniqueCategories = new Set(categories);
+                                const tempResultArray = []
+
+                                for (let i = 0; i < responseData.collections.length; i++) {
+                                    if (!uniqueCategories.has(responseData.collections[i].category)) {
+                                        uniqueCategories.add(responseData.collections[i].category);
+                                    }
+                                    let { name, link, category } = responseData.collections[i];
+                                    tempResultArray.push({ name, link, category });
+                                }
+
+                                setRowsData(tempResultArray)
+                                setCategories(Array.from(uniqueCategories));
                                 setLoadingDone(true)
                             })
                             .catch(error => {
@@ -43,15 +56,12 @@
                 return (
                     <>
                         <h1 className="main-title">Online Resource Saver</h1>
-                        {loadingDone ? <MainTable /> : null}
+                        {loadingDone ? <MainTable rowsData={rowsData} categories={categories} setCategories={setCategories} /> : null}
                     </>
                 )
             }
 
-            const MainTable = () => {
-                const [categories, setCategories] = React.useState(["All"])
-
-                console.log(categories)
+            const MainTable = ({rowsData, categories, setCategories}) => {
 
                 return (
                     <>
@@ -73,7 +83,7 @@
                                         <div className={`tab-pane fade ${index === 0 ? 'show active' : ''}`}
                                              id={`pills-${category.split(' ').join('')}`} role="tabpanel"
                                              aria-labelledby={`pills-${category.split(' ').join('')}-tab`} key={index}>
-                                            <Table categories={categories} setCategories={setCategories} index={index} currentCategory={category}/>
+                                            <Table rowsData={rowsData} categories={categories} setCategories={setCategories} index={index} currentCategory={category}/>
                                         </div>
                                     ))}
                                 </div>
@@ -83,13 +93,43 @@
                 );
             }
 
-            const Table = ({categories, setCategories, index, currentCategory}) => {
+            const Table = ({rowsData, categories, setCategories, index, currentCategory}) => {
+
                 const [rows, setRows] = React.useState([])
 
-                const handleDeleteCategory = (index) => () => {
-                    const newCategories = categories.filter((category, i) => i !== index);
-                    setCategories(newCategories)
-                    setRows([])
+                React.useEffect(() => {
+                    let rowsArr = []
+
+                    for(let i = 0; i < rowsData.length; i++) {
+                        if(rowsData[i].category === currentCategory) {
+                            let { name, link, category } = rowsData[i];
+                            rowsArr.push({ name, link, category });
+                        }
+                    }
+                    setRows(rowsArr)
+                }, [])
+
+                const handleDeleteCategory = (index, currentCategory) => async() => {
+
+                    try {
+                            const response = await fetch('/delete_category', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: currentCategory
+                            });
+
+                            if (response.ok) {
+                                const newCategories = categories.filter((category, i) => i !== index);
+                                setCategories(newCategories)
+                                setRows([])
+                            } else {
+                                throw new Error('Failed to submit entry');
+                            }
+                        } catch (error) {
+                            console.error('Error submitting entry:', error);
+                        }
                 }
 
                 return (
@@ -111,6 +151,7 @@
                                      name={name}
                                      rows={rows}
                                      setRows={setRows}
+                                     currentCategory={currentCategory}
                                 />
                             ))}
                             </tbody>
@@ -118,18 +159,39 @@
                         <InputGroup setRows={setRows} rows={rows} setCategories={setCategories}
                                     categories={categories} currentCategory={currentCategory}></InputGroup>
                         {index !== 0 ? <button type="button" className="btn btn-outline-danger"
-                                onClick={handleDeleteCategory(index)}>Delete Current Category
+                                onClick={handleDeleteCategory(index, currentCategory)}>Delete Current Category
                         </button> : null}
                     </>
                 )
             }
 
-            const Row = ({index, link, name, rows, setRows}) => {
+            const Row = ({index, link, name, rows, setRows, currentCategory}) => {
 
-                const handleDelete = (index) => () => {
-                    console.log(index)
-                    const newRows = rows.filter((row, i) => i !== index);
-                    setRows(newRows)
+                const handleDelete = (index, currentCategory) => async() => {
+
+                    const data = {
+                        currentCategory: currentCategory,
+                        index: index
+                    }
+
+                    try {
+                            const response = await fetch('/delete_row', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(data)
+                            });
+
+                            if (response.ok) {
+                                const newRows = rows.filter((row, i) => i !== index);
+                                setRows(newRows)
+                            } else {
+                                throw new Error('Failed to submit entry');
+                            }
+                        } catch (error) {
+                            console.error('Error submitting entry:', error);
+                        }
                 }
 
                 return (
@@ -140,7 +202,7 @@
                             <td><a href={link}>{link}</a></td>
                             <td>
                                 <button type="button" className="btn btn-outline-danger"
-                                        onClick={handleDelete(index)}>Delete Row
+                                        onClick={handleDelete(index, currentCategory)}>Delete Row
                                 </button>
                             </td>
                         </tr>
@@ -154,14 +216,6 @@
                 const [link, setLink] = React.useState('');
                 const [category, setCategory] = React.useState('')
 
-                React.useEffect(() => {
-                    console.log("Rows updated:", rows);
-                }, [rows])
-
-                React.useEffect(() => {
-                    console.log("Categories updated:", categories);
-                }, [categories])
-
                 function isValidUrl(urlInput) {
                     try {
                         const url = new URL(urlInput);
@@ -172,6 +226,7 @@
                 }
 
                 const handleSubmitEntry = async event => {
+
                     event.preventDefault();
 
                     if (name !== "" && link !== "" && isValidUrl(link)) {
@@ -206,6 +261,7 @@
                 };
 
                 const handleSubmitCategory = event => {
+
                     if (category !== "") {
                         event.preventDefault();
                         setCategories([...categories, category.toString()]);

@@ -1,10 +1,9 @@
 from flask import Flask, render_template, request, jsonify
-from pymongo import MongoClient, collection
+from pymongo import MongoClient
 
 client = MongoClient()
 app = Flask(__name__)
 
-client = MongoClient("localhost", 27017)
 client = MongoClient("mongodb://localhost:27017/")
 
 db = client.database
@@ -13,24 +12,8 @@ db = client.database
 @app.route("/")
 def index():
 
-    # TODO: delete this and add procedural reloading so database loads and updates page when loaded
-    collection_names = db.list_collection_names()
-
-    # DROPS TABLES
-    # for collection_name in collection_names:
-    #     db.drop_collection(collection_name)
-
-    # PRINTS TABLES
-    for collection_name in collection_names:
-        print("Collection:", collection_name)
-        collection = db[collection_name]
-
-        documents = collection.find()
-
-        for document in documents:
-            print("Document:", document)
-
     return render_template("index.html")
+
 
 @app.route("/get_data_on_page_load", methods = ["GET"])
 def get_data_on_page_load():
@@ -52,16 +35,50 @@ def get_data_on_page_load():
             }
             documents_data.append(data)
 
-    data = {
-        "categories": collection_names,
-        "rows": documents_data
-    }
+    return jsonify({'collections': documents_data})
 
-    return jsonify({'collections': data})
+
+@app.route("/delete_row", methods = ["POST"])
+def delete_row():
+
+    data = request.json
+
+    currentCategory = data.get('currentCategory')
+    index = data.get('index')
+
+    collection_names = db.list_collection_names()
+
+    for collection_name in collection_names:
+        if collection_name == currentCategory:
+            collection = db[collection_name]
+            document_to_delete = collection.find_one(skip=index)
+            if document_to_delete:
+                collection.delete_one({"_id": document_to_delete["_id"]})
+                print("Deleted document with id:", document_to_delete["_id"])
+            else:
+                print("No document found at index", index)
+
+    return jsonify({'message': 'Entry submitted successfully'})
+
+
+
+@app.route("/delete_category", methods = ["POST"])
+def delete_category():
+
+    data = request.data.decode('utf-8')
+
+    collection_names = db.list_collection_names()
+
+    for collection_name in collection_names:
+        if collection_name == data:
+            db.drop_collection(collection_name)
+
+    return jsonify({'message': 'Entry submitted successfully'})
 
 
 @app.route("/submit_entry", methods = ["POST"])
 def submit_entry():
+
     data = request.json
 
     category = data.get('category')
