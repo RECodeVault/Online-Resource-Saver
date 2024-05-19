@@ -134,6 +134,11 @@
 
                 return (
                     <>
+                        {index !== 0 ? <button type="button" className="btn btn-outline-danger"
+                                onClick={handleDeleteCategory(index, currentCategory)}>Delete Current Category
+                        </button> : null}
+                        <InputGroup setRows={setRows} rows={rows} setCategories={setCategories}
+                                    categories={categories} currentCategory={currentCategory}></InputGroup>
                         <table className="table table-striped table-dark table-hover table-bordered">
                             <thead>
                             <tr>
@@ -156,11 +161,6 @@
                             ))}
                             </tbody>
                         </table>
-                        <InputGroup setRows={setRows} rows={rows} setCategories={setCategories}
-                                    categories={categories} currentCategory={currentCategory}></InputGroup>
-                        {index !== 0 ? <button type="button" className="btn btn-outline-danger"
-                                onClick={handleDeleteCategory(index, currentCategory)}>Delete Current Category
-                        </button> : null}
                     </>
                 )
             }
@@ -274,8 +274,6 @@
                 return (
                     <>
                         <div className="input-group mb-3">
-                            <button type="button" className="btn btn-outline-primary" onClick={handleSubmitEntry}>Add Entry
-                            </button>
                             <input
                                 type="text"
                                 className="form-control"
@@ -294,11 +292,10 @@
                                 onChange={e => setLink(e.target.value)}
                             />
                             <span className="input-group-text">@</span>
+                            <button type="button" className="btn btn-outline-primary" onClick={handleSubmitEntry}>Add Entry
+                            </button>
                         </div>
                         <div className="input-group mb-3">
-                            <button type="button" id="category-button" className="btn btn-outline-primary" onClick={handleSubmitCategory}>Add Category
-                            </button>
-                            <span className="input-group-text" id="basic-addon1">@</span>
                             <input
                                 type="text"
                                 className="form-control"
@@ -307,6 +304,10 @@
                                 aria-describedby="basic-addon1"
                                 onChange={e => setCategory(e.target.value)}
                             />
+                            <span className="input-group-text" id="basic-addon1">@</span>
+                            <button type="button" id="category-button" className="btn btn-outline-primary"
+                                    onClick={handleSubmitCategory}>Add Category
+                            </button>
                         </div>
                     </>
                 )
