@@ -15,6 +15,28 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/get_all_entries", methods = ["GET"])
+def get_all_entries():
+
+    documents = []
+
+    for collection_name in db.list_collection_names():
+        collection = db[collection_name]
+
+        for document in collection.find():
+            data = {
+                "name": document["name"],
+                "link": document["link"],
+                "category": document["category"]
+            }
+
+            documents.append(data)
+
+    return jsonify({'collections': documents})
+
+
+
+
 @app.route("/get_data_on_page_load", methods = ["GET"])
 def get_data_on_page_load():
 
@@ -54,7 +76,6 @@ def delete_row():
             document_to_delete = collection.find_one(skip=index)
             if document_to_delete:
                 collection.delete_one({"_id": document_to_delete["_id"]})
-                print("Deleted document with id:", document_to_delete["_id"])
             else:
                 print("No document found at index", index)
 

@@ -1,6 +1,14 @@
 .main-title {
     text-align: center;
     color: #e3e3e3;
+    padding: 10px;
+    font-weight: bold;
+    font-size: 70px;
+    background: linear-gradient(to bottom, #9370db, rebeccapurple);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke: 2px black;
+    filter: drop-shadow(5px 5px black);
 }
 
 .background {
@@ -13,4 +21,9 @@
 
 .tab-pane {
     color: #e3e3e3
+}
+
+.rows-length {
+    text-align: center;
+    opacity: 50%;
 }

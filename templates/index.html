@@ -70,11 +70,25 @@
                                 <ul className="nav nav-pills mb-3 mx-auto mt-3" id="pills-tab" role="tablist">
                                     {categories.map((category, index) => (
                                         <li className="nav-item" role="presentation" key={index}>
-                                            <button className={`nav-link ${index === 0 ? 'active' : ''}`}
-                                                    id={`pills-${category.split(' ').join('')}-tab`} data-bs-toggle="pill"
-                                                    data-bs-target={`#pills-${category.split(' ').join('')}`} type="button" role="tab"
-                                                    aria-controls={`pills-${category.split(' ').join('')}`}
-                                                    aria-selected={index === 0 ? 'true' : 'false'}>{category}</button>
+                                            {category !== "All" ?
+                                                <button className={`nav-link ${index === 0 ? 'active' : ''}`}
+                                                        id={`pills-${category.split(' ').join('')}-tab`}
+                                                        data-bs-toggle="pill"
+                                                        data-bs-target={`#pills-${category.split(' ').join('')}`}
+                                                        type="button" role="tab"
+                                                        aria-controls={`pills-${category.split(' ').join('')}`}
+                                                        aria-selected={index === 0 ? 'true' : 'false'}>{category}</button>
+                                                :
+                                                <button className={`nav-link ${index === 0 ? 'active' : ''}`}
+                                                        id={`pills-${category.split(' ').join('')}-tab`}
+                                                        data-bs-toggle="pill"
+                                                        data-bs-target={`#pills-${category.split(' ').join('')}`}
+                                                        type="button" role="tab"
+                                                        aria-controls={`pills-${category.split(' ').join('')}`}
+                                                        aria-selected={index === 0 ? 'true' : 'false'}
+                                                        onClick={e => window.location.reload()}>{category}
+                                                        </button>
+                                            }
                                         </li>
                                     ))}
                                 </ul>
@@ -98,15 +112,36 @@
                 const [rows, setRows] = React.useState([])
 
                 React.useEffect(() => {
-                    let rowsArr = []
+                    if(currentCategory !== "All") {
+                        let rowsArr = []
 
-                    for(let i = 0; i < rowsData.length; i++) {
-                        if(rowsData[i].category === currentCategory) {
-                            let { name, link, category } = rowsData[i];
-                            rowsArr.push({ name, link, category });
+                        for (let i = 0; i < rowsData.length; i++) {
+                            if (rowsData[i].category === currentCategory) {
+                                let {name, link, category} = rowsData[i];
+                                rowsArr.push({name, link, category});
+                            }
+                        }
+                        setRows(rowsArr)
+                    }
+                    else {
+                        try {
+                            fetch('/get_all_entries')
+                                .then(response => {
+                                    if (!response.ok) {
+                                        throw new Error('Failed to submit entry');
+                                    }
+                                    return response.json();
+                                })
+                                .then(responseData => {
+                                    setRows(responseData.collections)
+                                })
+                            .catch(error => {
+                                console.error('Error submitting entry:', error);
+                            });
+                        } catch (error) {
+                            console.error('Error submitting entry:', error);
                         }
                     }
-                    setRows(rowsArr)
                 }, [])
 
                 const handleDeleteCategory = (index, currentCategory) => async() => {
@@ -137,35 +172,40 @@
                         {index !== 0 ? <button type="button" className="btn btn-outline-danger"
                                 onClick={handleDeleteCategory(index, currentCategory)}>Delete Current Category
                         </button> : null}
-                        <InputGroup setRows={setRows} rows={rows} setCategories={setCategories}
-                                    categories={categories} currentCategory={currentCategory}></InputGroup>
-                        <table className="table table-striped table-dark table-hover table-bordered">
+                        {currentCategory !== "All"? <InputGroup setRows={setRows} rows={rows} setCategories={setCategories}
+                                    categories={categories} currentCategory={currentCategory}></InputGroup> :
+                        null}
+
+                        {rows.length > 0 ? <table className="table table-striped table-dark table-hover table-bordered">
                             <thead>
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Name</th>
                                 <th scope="col">Link</th>
-                                <th scope="col">Delete</th>
+                                {currentCategory !== "All" ? <th scope="col">Delete</th> :
+                                    <th scope="col">Category</th>}
                             </tr>
                             </thead>
                             <tbody>
-                            {rows.map(({link, name}, index) => (
+                            {rows.map(({link, name, category}, index) => (
                                 <Row key={index}
                                      index={index}
                                      link={link}
                                      name={name}
+                                     category={category}
                                      rows={rows}
                                      setRows={setRows}
                                      currentCategory={currentCategory}
                                 />
                             ))}
                             </tbody>
-                        </table>
+                        </table>:
+                            <p className="rows-length">This category is empty...</p>}
                     </>
                 )
             }
 
-            const Row = ({index, link, name, rows, setRows, currentCategory}) => {
+            const Row = ({index, link, name, category, rows, setRows, currentCategory}) => {
 
                 const handleDelete = (index, currentCategory) => async() => {
 
@@ -175,23 +215,23 @@
                     }
 
                     try {
-                            const response = await fetch('/delete_row', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(data)
-                            });
+                        const response = await fetch('/delete_row', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
 
-                            if (response.ok) {
-                                const newRows = rows.filter((row, i) => i !== index);
-                                setRows(newRows)
-                            } else {
-                                throw new Error('Failed to submit entry');
-                            }
-                        } catch (error) {
-                            console.error('Error submitting entry:', error);
+                        if (response.ok) {
+                            const newRows = rows.filter((row, i) => i !== index);
+                            setRows(newRows)
+                        } else {
+                            throw new Error('Failed to submit entry');
                         }
+                    } catch (error) {
+                        console.error('Error submitting entry:', error);
+                    }
                 }
 
                 return (
@@ -200,11 +240,12 @@
                             <th scope="row">{index + 1}</th>
                             <td>{name}</td>
                             <td><a href={link}>{link}</a></td>
-                            <td>
-                                <button type="button" className="btn btn-outline-danger"
-                                        onClick={handleDelete(index, currentCategory)}>Delete Row
-                                </button>
-                            </td>
+                            {currentCategory !== "All" ? <td>
+                                    <button type="button" className="btn btn-outline-danger"
+                                            onClick={handleDelete(index, currentCategory)}>Delete Row
+                                    </button>
+                                </td> :
+                                <td>{category}</td>}
                         </tr>
                     </>
                 )
