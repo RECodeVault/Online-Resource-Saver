@@ -1,3 +1,4 @@
+/* Index page */
 .main-title {
     text-align: center;
     color: #e3e3e3;
@@ -26,4 +27,23 @@
 .rows-length {
     text-align: center;
     opacity: 50%;
+}
+
+#category {
+    border: 2px solid black;
+}
+
+.card-header {
+    background-color: #6b006b !important;
+    color: white !important;
+}
+
+.card-body {
+    background-color: #6b006b !important;
+    color: white !important;
+}
+
+.row>* {
+    padding-right: 0 !important;
+    padding-left: 0 !important;
 }
