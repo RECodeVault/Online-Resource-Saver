@@ -248,6 +248,7 @@
             }
 
             const Row = ({index, link, name, category, rows, setRows, currentCategory}) => {
+                const [showSuccessAlert, setShowSuccessAlert] = React.useState(null);
 
                 const handleDelete = (index, currentCategory) => async() => {
 
@@ -268,6 +269,7 @@
                         if (response.ok) {
                             const newRows = rows.filter((row, i) => i !== index);
                             setRows(newRows)
+                            setShowSuccessAlert(true);
                         } else {
                             throw new Error('Failed to submit entry');
                         }
@@ -275,6 +277,13 @@
                         console.error('Error submitting entry:', error);
                     }
                 }
+
+                React.useEffect(() => {
+                    const timer = setTimeout(() => {
+                        setShowSuccessAlert(null);
+                    }, 3000);
+                    return () => clearTimeout(timer);
+                }, [showSuccessAlert]);
 
                 return (
                     <>
@@ -290,14 +299,24 @@
                             </td> :
                             <td>{category}</td>}
                         </tr>
+                        {showSuccessAlert && (
+                            <div className="alert alert-success position-fixed top-0 end-0" role="alert">
+                                Entry deleted successfully!
+                            </div>
+                        )}
+                        {showSuccessAlert === false && (
+                            <div className="alert alert-danger position-fixed top-0 end-0" role="alert">
+                                There was an Error when deleting an entry!
+                            </div>
+                        )}
                     </>
                 )
             }
 
-            const InputGroup = ({setRows, rows, currentCategory}) => {
-
+            const InputGroup = ({ setRows, rows, currentCategory }) => {
                 const [name, setName] = React.useState('');
                 const [link, setLink] = React.useState('');
+                const [showSuccessAlert, setShowSuccessAlert] = React.useState(null);
 
                 function isValidUrl(urlInput) {
                     try {
@@ -309,7 +328,6 @@
                 }
 
                 const handleSubmitEntry = async event => {
-
                     event.preventDefault();
 
                     if (name !== "" && link !== "" && isValidUrl(link)) {
@@ -328,20 +346,28 @@
                             });
 
                             if (response.ok) {
-                                const responseData = await response.json();
-                                console.log(responseData);
                                 setRows([...rows, data]);
+                                setShowSuccessAlert(true);
+                                setName('');
+                                setLink('');
                             } else {
                                 throw new Error('Failed to submit entry');
                             }
                         } catch (error) {
                             console.error('Error submitting entry:', error);
                         }
-                    }
-                    else {
-                        window.alert("Invalid URL or empty entries");
+                    } else {
+                        setShowSuccessAlert(false);
+                        setTimeout(() => setShowSuccessAlert(false), 3000);
                     }
                 };
+
+                React.useEffect(() => {
+                    const timer = setTimeout(() => {
+                        setShowSuccessAlert(null);
+                    }, 3000);
+                    return () => clearTimeout(timer);
+                }, [showSuccessAlert]);
 
                 return (
                     <>
@@ -364,11 +390,20 @@
                                 onChange={e => setLink(e.target.value)}
                             />
                             <span className="input-group-text"><i className="fa-solid fa-link"></i></span>
-                            <button type="button" className="btn btn-primary"
-                                    onClick={handleSubmitEntry}>
+                            <button type="button" className="btn btn-primary" onClick={handleSubmitEntry}>
                                 <i className="fa-solid fa-plus"></i>
                             </button>
                         </div>
+                        {showSuccessAlert && (
+                            <div className="alert alert-success position-fixed top-0 end-0" role="alert">
+                                Entry submitted successfully!
+                            </div>
+                        )}
+                        {showSuccessAlert === false && (
+                            <div className="alert alert-danger position-fixed top-0 end-0" role="alert">
+                                Entry Invalid URL or empty entries!
+                            </div>
+                        )}
                     </>
                 )
             }
