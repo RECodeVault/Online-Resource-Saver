@@ -17,7 +17,9 @@
 }
 
 #pills-tab {
-    background-color: #e3e3e3;
+    background-color: #383838 !important;
+    border: 1px solid white;
+    border-radius: 3px;
 }
 
 .tab-pane {
@@ -29,18 +31,57 @@
     opacity: 50%;
 }
 
+.table th.col-hash,
+.table td.col-hash {
+    width: 5%;
+}
+
+.table th.col-name,
+.table td.col-name {
+    width: 35%;
+}
+
+.table th.col-link,
+.table td.col-link {
+    width: 35%;
+}
+
+.table th.col-delete,
+.table td.col-delete {
+    width: 8%;
+    text-align: center;
+}
+
+.trash {
+    text-align: center;
+}
+
 #category {
-    border: 2px solid black;
+     --bs-btn-border-color: #9370db !important;
+}
+
+.nav-pills .nav-link {
+    color: white !important;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show>.nav-link {
+        background-color: rebeccapurple !important;
 }
 
 .card-header {
-    background-color: #6b006b !important;
+    background-color: #383838 !important;
     color: white !important;
 }
 
 .card-body {
-    background-color: #6b006b !important;
+    background-color: #383838 !important;
     color: white !important;
+}
+
+.btn-primary {
+    background-color: rebeccapurple !important;
+    --bs-btn-border-color: #9370db !important;
+    --bs-btn-hover-border-color: rebeccapurple !important;
 }
 
 .row>* {

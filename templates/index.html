@@ -9,6 +9,7 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://kit.fontawesome.com/16dccbf5d8.js" crossorigin="anonymous"></script>
 </head>
     <div id='root'></div>
     <body class="background">
@@ -107,7 +108,10 @@
                                                     <input type="text" className="form-control ml-2" id="category"
                                                            placeholder="Enter Category:"
                                                            onChange={e => setCategory(e.target.value)}/>
-                                                    <button type="button" className="btn btn-primary" onClick={handleAddCategory}>Add</button>
+                                                    <button type="button" className="btn btn-primary"
+                                                            onClick={handleAddCategory}>
+                                                        <i className="fa-solid fa-plus"></i>
+                                                    </button>
                                                 </> : null
                                             }
                                         </li>
@@ -193,16 +197,16 @@
                         <div className="card">
                           <div className="card-header d-flex justify-content-between align-items-center">
                             <span>{currentCategory}</span>
-                            {index !== 0 &&
-                                <button type="button" className="btn btn-danger"
-                                        onClick={handleDeleteCategory(index, currentCategory)}>
-                                    Delete Current Category
-                                </button>
-                            }
+                              {index !== 0 &&
+                                  <button type="button" className="btn btn-link text-danger p-0"
+                                          onClick={handleDeleteCategory(index, currentCategory)}>
+                                      <i className="fa-solid fa-trash"></i>
+                                  </button>
+                              }
                           </div>
                             <div className="card-body">
-                                { currentCategory !== "All" ?
-                                <h5 className="card-title">Enter an Entry:</h5>:
+                                {currentCategory !== "All" ?
+                                    <h5 className="card-title">Enter an Entry:</h5>:
                                     null
                                 }
                                 {currentCategory !== "All" ?
@@ -215,10 +219,10 @@
                                     <table className="table table-striped table-dark table-hover table-bordered">
                                         <thead>
                                         <tr>
-                                            <th scope="col">#</th>
-                                            <th scope="col">Name</th>
-                                            <th scope="col">Link</th>
-                                            {currentCategory !== "All" ? <th scope="col">Delete</th> :
+                                            <th scope="col" className="col-hash">#</th>
+                                            <th scope="col" className="col-name">Name</th>
+                                            <th scope="col" className="col-link">Link</th>
+                                            {currentCategory !== "All" ? <th scope="col" className="col-delete">Delete</th> :
                                                 <th scope="col">Category</th>}
                                         </tr>
                                         </thead>
@@ -278,12 +282,13 @@
                             <th scope="row">{index + 1}</th>
                             <td>{name}</td>
                             <td><a href={link}>{link}</a></td>
-                            {currentCategory !== "All" ? <td>
-                                    <button type="button" className="btn btn-outline-danger"
-                                            onClick={handleDelete(index, currentCategory)}>Delete Row
-                                    </button>
-                                </td> :
-                                <td>{category}</td>}
+                            {currentCategory !== "All" ? <td className="trash">
+                                <button type="button" className="btn btn-link text-danger p-0"
+                                        onClick={handleDelete(index, currentCategory)}>
+                                    <i className="fa-solid fa-trash"></i>
+                                </button>
+                            </td> :
+                            <td>{category}</td>}
                         </tr>
                     </>
                 )
@@ -349,7 +354,7 @@
                                 value={name}
                                 onChange={e => setName(e.target.value)}
                             />
-                            <span className="input-group-text">@</span>
+                            <span className="input-group-text"><i className="fa-solid fa-font"></i></span>
                             <input
                                 type="text"
                                 className="form-control"
@@ -358,8 +363,10 @@
                                 value={link}
                                 onChange={e => setLink(e.target.value)}
                             />
-                            <span className="input-group-text">@</span>
-                            <button type="button" className="btn btn-primary" onClick={handleSubmitEntry}>Add Entry
+                            <span className="input-group-text"><i className="fa-solid fa-link"></i></span>
+                            <button type="button" className="btn btn-primary"
+                                    onClick={handleSubmitEntry}>
+                                <i className="fa-solid fa-plus"></i>
                             </button>
                         </div>
                     </>
