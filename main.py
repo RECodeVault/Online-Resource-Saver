@@ -118,8 +118,6 @@ def submit_entry():
     }
 
     collection.insert_one(data)
-    for document in collection.find():
-        print(document)
 
     return jsonify({'message': 'Entry submitted successfully'})
 

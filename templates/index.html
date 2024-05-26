@@ -64,17 +64,36 @@
 
             const MainTable = ({rowsData, categories, setCategories}) => {
                 const [category, setCategory] = React.useState('');
+                const [showSuccessAlert, setShowSuccessAlert] = React.useState(null);
+
+                function is_valid_category(categories) {
+                    for(let i = 0; i < categories.length; i++) {
+                        if(category === categories[i]) {
+                            return false;
+                        }
+                    }
+                    return true;
+                }
 
                 const handleAddCategory = event => {
 
-                    if (category !== "") {
+                    if (category !== "" && is_valid_category(categories)) {
                         event.preventDefault();
                         setCategories([...categories, category.toString()]);
+                        setShowSuccessAlert(true);
+                        setCategory('')
                     }
                     else {
-                        window.alert("When adding categories you cannot have empty values")
+                        setShowSuccessAlert(false);
                     }
                 }
+
+                 React.useEffect(() => {
+                    const timer = setTimeout(() => {
+                        setShowSuccessAlert(null);
+                    }, 3000);
+                    return () => clearTimeout(timer);
+                }, [showSuccessAlert]);
 
                 return (
                     <>
@@ -112,6 +131,18 @@
                                                             onClick={handleAddCategory}>
                                                         <i className="fa-solid fa-plus"></i>
                                                     </button>
+                                                    {showSuccessAlert && (
+                                                        <div className="alert alert-success position-fixed top-0 end-0" role="alert">
+                                                            <strong>Category added successfully!</strong>
+                                                            <br></br>
+                                                            <small>Category will not save if there is no entries inside</small>
+                                                        </div>
+                                                    )}
+                                                    {showSuccessAlert === false && (
+                                                        <div className="alert alert-danger position-fixed top-0 end-0" role="alert">
+                                                            <strong>There was an Error when adding a category!</strong>
+                                                        </div>
+                                                    )}
                                                 </> : null
                                             }
                                         </li>
@@ -135,6 +166,7 @@
             const Table = ({rowsData, categories, setCategories, index, currentCategory}) => {
 
                 const [rows, setRows] = React.useState([])
+                const [showSuccessAlert, setShowSuccessAlert] = React.useState(null);
 
                 React.useEffect(() => {
                     if(currentCategory !== "All") {
@@ -168,6 +200,13 @@
                         }
                     }
                 }, [])
+
+                 React.useEffect(() => {
+                    const timer = setTimeout(() => {
+                        setShowSuccessAlert(null);
+                    }, 3000);
+                    return () => clearTimeout(timer);
+                }, [showSuccessAlert]);
 
                 const handleDeleteCategory = (index, currentCategory) => async() => {
 
@@ -236,19 +275,30 @@
                                                  rows={rows}
                                                  setRows={setRows}
                                                  currentCategory={currentCategory}
+                                                 setShowSuccessAlert={setShowSuccessAlert}
                                             />
                                         ))}
                                         </tbody>
                                     </table> :
                                     <p className="rows-length">This category is empty...</p>}
+                                        {showSuccessAlert && (
+                                            <div className="alert alert-success position-fixed top-0 end-0" role="alert">
+                                                <strong>Entry deleted successfully!</strong>
+                                            </div>
+                                        )}
+                                        {showSuccessAlert === false && (
+                                            <div className="alert alert-danger position-fixed top-0 end-0" role="alert">
+                                                <strong>There was an Error when deleting an entry!</strong>
+                                            </div>
+                                        )}
                             </div>
                         </div>
                     </>
                 )
             }
 
-            const Row = ({index, link, name, category, rows, setRows, currentCategory}) => {
-                const [showSuccessAlert, setShowSuccessAlert] = React.useState(null);
+            const Row = ({index, link, name, category, rows, setRows, currentCategory, setShowSuccessAlert}) => {
+
 
                 const handleDelete = (index, currentCategory) => async() => {
 
@@ -278,13 +328,6 @@
                     }
                 }
 
-                React.useEffect(() => {
-                    const timer = setTimeout(() => {
-                        setShowSuccessAlert(null);
-                    }, 3000);
-                    return () => clearTimeout(timer);
-                }, [showSuccessAlert]);
-
                 return (
                     <>
                         <tr>
@@ -299,16 +342,6 @@
                             </td> :
                             <td>{category}</td>}
                         </tr>
-                        {showSuccessAlert && (
-                            <div className="alert alert-success position-fixed top-0 end-0" role="alert">
-                                Entry deleted successfully!
-                            </div>
-                        )}
-                        {showSuccessAlert === false && (
-                            <div className="alert alert-danger position-fixed top-0 end-0" role="alert">
-                                There was an Error when deleting an entry!
-                            </div>
-                        )}
                     </>
                 )
             }
@@ -396,12 +429,12 @@
                         </div>
                         {showSuccessAlert && (
                             <div className="alert alert-success position-fixed top-0 end-0" role="alert">
-                                Entry submitted successfully!
+                                <strong>Entry submitted successfully!</strong>
                             </div>
                         )}
                         {showSuccessAlert === false && (
                             <div className="alert alert-danger position-fixed top-0 end-0" role="alert">
-                                Entry Invalid URL or empty entries!
+                                <strong>Error when adding entry</strong>
                             </div>
                         )}
                     </>
