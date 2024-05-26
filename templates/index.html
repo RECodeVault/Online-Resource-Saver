@@ -64,7 +64,7 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ category: categoryToDelete })
+                        body: categoryToDelete
                     });
 
                     if (response.ok) {
@@ -258,29 +258,6 @@
                     }, 3000);
                     return () => clearTimeout(timer);
                 }, [showSuccessAlert]);
-
-                const handleDeleteCategory = (index, currentCategory) => async() => {
-
-                    try {
-                            const response = await fetch('/delete_category', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json'
-                                },
-                                body: currentCategory
-                            });
-
-                            if (response.ok) {
-                                const newCategories = categories.filter((category, i) => i !== index);
-                                setCategories(newCategories)
-                                setRows([])
-                            } else {
-                                throw new Error('Failed to submit entry');
-                            }
-                        } catch (error) {
-                            console.error('Error submitting entry:', error);
-                        }
-                }
 
                 return (
                     <>

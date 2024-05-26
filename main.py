@@ -35,8 +35,6 @@ def get_all_entries():
     return jsonify({'collections': documents})
 
 
-
-
 @app.route("/get_data_on_page_load", methods = ["GET"])
 def get_data_on_page_load():
 
@@ -79,7 +77,7 @@ def delete_row():
             else:
                 print("No document found at index", index)
 
-    return jsonify({'message': 'Entry submitted successfully'})
+    return jsonify({'message': 'Entry deleted successfully'})
 
 
 
@@ -94,7 +92,7 @@ def delete_category():
         if collection_name == data:
             db.drop_collection(collection_name)
 
-    return jsonify({'message': 'Entry submitted successfully'})
+    return jsonify({'message': 'Entry deleted successfully'})
 
 
 @app.route("/submit_entry", methods = ["POST"])
