@@ -88,3 +88,32 @@
     padding-right: 0 !important;
     padding-left: 0 !important;
 }
+
+.modal-header {
+   background-color: #383838 !important;
+    color: white;
+}
+
+.modal-body {
+    background-color: #383838 !important;
+    color: white;
+}
+
+.modal-footer {
+    background-color: #383838 !important;
+    color: white;
+}
+
+.btn-secondary {
+    background-color: crimson !important;
+    --bs-btn-border-color: #ff4040 !important;
+    --bs-btn-hover-border-color: crimson !important;
+}
+
+.fa-triangle-exclamation {
+    color: darkorange !important;
+}
+
+.fa-circle-info {
+    color: dodgerblue !important;
+}
